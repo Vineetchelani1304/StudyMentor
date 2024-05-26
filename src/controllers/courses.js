@@ -9,7 +9,7 @@ exports.createCourse = async (req, res) => {
         const { courseName, description, price, tags, category } = req.body;
         // Extract thumbnail correctly from req.files
         console.log(courseName, description, price, tags, category)
-        const thumbNail  = req.files; 
+        const thumbNail  = req.files.thumbNail; 
         // Check if all required fields are provided
         if (!courseName || !description || !price || !tags || !category || !thumbNail) 
         { 
