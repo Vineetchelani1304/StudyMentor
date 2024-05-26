@@ -5,8 +5,8 @@ require('dotenv').config();
 exports.auth = async (req, res, next) => {
     try {
         console.log("here we go");
-        const token = req.header('Authorization')?.replace("Bearer ", "") || req.cookies.token || req.body.token;
-
+        const token = req.cookies.token || req.header("Authorization").replace("Bearer ", "") || req.body.token;
+        console.log("token: " + token);
         if (!token) {
             return res.status(401).json({
                 success: false,
@@ -15,6 +15,7 @@ exports.auth = async (req, res, next) => {
         }
 
         try {
+            console.log("verifying the token")
             const payLoad = jwt.verify(token, process.env.JWT_SECRET);
             console.log("Payload:", payLoad);
             req.user = payLoad;
@@ -39,6 +40,47 @@ exports.auth = async (req, res, next) => {
         });
     }
 };
+
+
+
+// exports.auth = async (req, res, next) => {
+//     try{
+//         //extract token
+//         const token = req.cookies.token 
+//                         || req.body.token 
+//                         || req.header("Authorisation").replace("Bearer ", "");
+
+//         //if token missing, then return response
+//         if(!token) {
+//             return res.status(401).json({
+//                 success:false,
+//                 message:'TOken is missing',
+//             });
+//         }
+
+//         //verify the token
+//         try{
+//             const decode =  jwt.verify(token, process.env.JWT_SECRET);
+//             console.log(decode);
+//             req.user = decode;
+//         }
+//         catch(err) {
+//             //verification - issue
+//             return res.status(401).json({
+//                 success:false,
+//                 message:'token is invalid',
+//             });
+//         }
+//         next();
+//     }
+//     catch(error) {  
+//         return res.status(401).json({
+//             success:false,
+//             message:'Something went wrong while validating the token',
+//         });
+//     }
+// }
+
 
 
 
@@ -70,6 +112,7 @@ exports.isInstructor = async (req,res,next)=>{
                     message : "this route is for instructor's only"
                 })
             }
+        next();
         console.log("instructor middleware is ended")
     } catch (error) {
         return res.status(500).json({

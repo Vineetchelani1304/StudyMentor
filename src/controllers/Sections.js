@@ -14,13 +14,15 @@ exports.createSection = async (req,res) => {
         const sectionDetails = await section.create({sectionName: sectionName})
         const courseDetails = await course.findByIdAndUpdate({_id : courseId},
                                                              { $push : {courseContent : sectionDetails._id}},
-                                                             {new:true}).populate(sectionDetails)
+                                                             {new:true}).populate("courseContent")
 
+        console.log(courseDetails)
         return res.status(200).json({
             success : true,
             message : "section created successfully"
         })
     }catch(err){
+        console.log(err)
         return res.status(500).json({
             success : false,
             message : "error while creating section"
@@ -32,6 +34,7 @@ exports.createSection = async (req,res) => {
 
 exports.UpdateSection = async (req,res) => {
     try {
+        console.log("updating section")
         const {sectionName,sectionId} = req.body;
         if(!sectionName)
             {
@@ -40,12 +43,13 @@ exports.UpdateSection = async (req,res) => {
                     message : "require details"
                 })
             }
-        const UpdatedSection = await section.findOneAndUpdate({sectionId},{sectionName:sectionName},{new:true})
+        const UpdatedSection = await section.findByIdAndUpdate(sectionId,{sectionName:sectionName},{new:true})
         return res.status(200).json({
             success : true,
             message : "section updated"
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             success : false,
             message : "error while updating section"
@@ -56,7 +60,7 @@ exports.UpdateSection = async (req,res) => {
 
 exports.DeleteSection = async (req,res) => {
     try {
-        const sectionId = req.params;
+        const {sectionId} = req.body;
         if(!sectionId)
             {
                 return res.status(401).json({
@@ -64,13 +68,14 @@ exports.DeleteSection = async (req,res) => {
                     message : "section not found"
                 })
             }
-        await section.findByIdAndDelete({sectionId})
+        await section.findByIdAndDelete({_id : sectionId})
 
         return res.status(200).json({
             success : true,
             message : "section deleted successfully"
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             success : false,
             message : "error while deleting section"

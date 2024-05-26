@@ -158,37 +158,106 @@ exports.signUp = async (req, res) => {
 };
 
 //Login page
-exports.Login = async (req,res) => {
-    try {
+// exports.Login = async (req,res) => {
+//     try {
 
+//         const { email, AccountType, password } = req.body;
+
+//         if (!email || !password || !AccountType) {
+//             return res.status(401).json({
+//                 success: false,
+//                 message: 'Please enter valid credentials'
+//             })
+//         }
+//         const user = await User.findOne({ email: email });
+//         if (!user) {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: 'User not found'
+//             })
+//         }
+
+//         if (await bcrypt.compare(password, user.password)) {
+//             let token = jwt.sign(
+//                 {
+//                     id: user._id,
+//                     email: user.email,
+//                     AccountType: user.AccountType
+//                 },
+//                 process.env.JWT_SECRET,
+//                 {
+//                     expiresIn: "2h",
+//                 }
+//             )
+
+//             user.token = token;
+//             await user.save();
+//             user.password = undefined;
+
+//             const Option = {
+//                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+//                 httpOnly: true,
+//             }
+//             res.cookie("token", token, Option).json(
+//                 {
+//                     success: true,
+//                     token,
+//                     user,
+//                     message: "user logged in successfully"
+//                 }
+//             )
+//             console.log(user)
+
+//         }
+//         else {
+//             return res.status(403).json(
+//                 {
+//                     success: false,
+//                     message: "Invalid password"
+//                 }
+//             )
+//         };
+//     } catch (error) {
+//         console.error(error);
+// 		// Return 500 Internal Server Error status code with error message
+// 		return res.status(500).json({
+// 			success: false,
+// 			message: `Login Failure Please Try Again`,
+// 		});
+//     }
+// }
+
+exports.Login = async (req, res) => {
+    try {
         const { email, AccountType, password } = req.body;
 
         if (!email || !password || !AccountType) {
             return res.status(401).json({
                 success: false,
                 message: 'Please enter valid credentials'
-            })
+            });
         }
+
         const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(403).json({
                 success: false,
                 message: 'User not found'
-            })
+            });
         }
 
         if (await bcrypt.compare(password, user.password)) {
-            let token = jwt.sign(
-                {
-                    id: user._id,
-                    email: user.email,
-                    AccountType: user.AccountType
-                },
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: "2h",
-                }
-            )
+            // Ensure the payload is consistent
+            const payload = {
+                id: user._id,
+                email: user.email,
+                AccountType: user.AccountType
+            };
+            console.log("Login Payload:", payload);
+
+            let token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: "2h",
+            });
 
             user.token = token;
             await user.save();
@@ -197,35 +266,30 @@ exports.Login = async (req,res) => {
             const Option = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 httpOnly: true,
-            }
-            res.cookie("token", token, Option).json(
-                {
-                    success: true,
-                    token,
-                    user,
-                    message: "user logged in successfully"
-                }
-            )
-            console.log(user)
+            };
 
+            res.cookie("token", token, Option).json({
+                success: true,
+                token,
+                user,
+                message: "User logged in successfully"
+            });
+
+            console.log("User logged in:", user);
+        } else {
+            return res.status(403).json({
+                success: false,
+                message: "Invalid password"
+            });
         }
-        else {
-            return res.status(403).json(
-                {
-                    success: false,
-                    message: "Invalid password"
-                }
-            )
-        };
     } catch (error) {
-        console.error(error);
-		// Return 500 Internal Server Error status code with error message
-		return res.status(500).json({
-			success: false,
-			message: `Login Failure Please Try Again`,
-		});
+        console.error("Login Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Login Failure, Please Try Again",
+        });
     }
-}
+};
 
 
 exports.changePassword = async (req, res) => {

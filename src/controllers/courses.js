@@ -1,7 +1,7 @@
 const Course = require('../models/course.model')
 const User = require('../models/user.model');
 // const Tags = require('../models/category.model');
-const { uploadImage } = require('../utils/ImageUploader')
+const uploadImage  = require('../utils/ImageUploader')
 const Category = require('../models/category.model')
 
 exports.createCourse = async (req, res) => {
@@ -78,7 +78,8 @@ exports.createCourse = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
     try {
-        const allCourses = await course.find(
+        console.log("Getting all courses")
+        const allCourses = await Course.find(
             {},
             {
                 courseName: true,
@@ -108,8 +109,9 @@ exports.getAllCourses = async (req, res) => {
 //get course details
 exports.getCourseDetails = async (req, res) => {
     try {
+        console.log("Getting Course Details")
         const { courseId } = req.body;
-        const courseDetails = await course.find({ _id: course }).populate({
+        const courseDetails = await Course.find({courseId}).populate({
             path: "instructor",
             populate: {
                 path: "additionalDetails"
@@ -126,6 +128,7 @@ exports.getCourseDetails = async (req, res) => {
                 }
             )
             .exec();
+        console.log("fetched the data")
         if (!courseDetails) {
             return res.status(400).json({
                 success: false,
@@ -137,6 +140,7 @@ exports.getCourseDetails = async (req, res) => {
             message: "fetched all the details successfully",
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             success: false,
             message: "error while fetching details "

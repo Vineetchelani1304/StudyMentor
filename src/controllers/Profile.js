@@ -46,12 +46,14 @@ exports.UpdateProfile = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
     try {
-        const id = req.user.id;
+        console.log("id is getting fetched")
+        const id = req.user.id
+        console.log(id)
         if (!id) return res.status(404).json({
             success: false,
             message: "id required",
         })
-        const userid = await user.findById({ id: id });
+        const userid = await user.findById(id);
         await Profile.findByIdAndDelete({ _id: userid.additionalDetails })
         await user.findByIdAndDelete({ _id: id });
         return res.status(200).json({
@@ -59,6 +61,7 @@ exports.deleteAccount = async (req, res) => {
             message: "User deleted",
         })
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
             message: "error occured while deleting account"
