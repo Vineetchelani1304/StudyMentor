@@ -55,7 +55,7 @@ exports.courseEnrollmentEmail = (courseName, name) => {
             .support {
                 font-size: 14px;
                 color: #999999;
-                margin-top: 20px;
+                margin-top: 21px;
             }
     
             .highlight {
